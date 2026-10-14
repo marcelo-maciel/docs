@@ -1,6 +1,6 @@
 ---
 title: Overview
-lastUpdated: 2026-10-09
+lastUpdated: 2026-10-14
 description: Release notes and version history for fullstackhero.
 sidebar:
   order: 1
@@ -10,6 +10,10 @@ seo:
 ---
 
 Notable changes to the kit, newest first.
+
+## 2026-10-14
+
+- **Frontend containers: the inactivity timeout is configurable from the environment (fix).** Both apps read `inactivityIdleMs` and `inactivityWarningMs` from `/config.json`, but the container's `config.json.template` never carried them, so an operator could not change the auto sign-out time without rebuilding the image. The template now renders them from `FSH_INACTIVITY_IDLE_MS` and `FSH_INACTIVITY_WARNING_MS`. Unset or empty keeps the built-in timings (admin 10 minutes, dashboard 20, each with a 60-second warning), so existing deployments behave as before; a value that is not a positive integer stops the container at start with a clear error rather than rendering invalid JSON. `deploy/docker` exposes them as `FSH_ADMIN_INACTIVITY_IDLE_MS`, `FSH_DASHBOARD_INACTIVITY_IDLE_MS` and `FSH_INACTIVITY_WARNING_MS` in `.env`. The Terraform static-site `runtime_config` and the Aspire dev setup are unchanged. See [Frontend development](/docs/frontend/development/#the-container-pattern) and [#1442](https://github.com/fullstackhero/dotnet-starter-kit/pull/1442).
 
 ## 2026-10-09
 
