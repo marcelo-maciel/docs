@@ -1,6 +1,6 @@
 ---
 title: Overview
-lastUpdated: 2026-10-09
+lastUpdated: 2026-10-14
 description: Release notes and version history for fullstackhero.
 sidebar:
   order: 1
@@ -10,6 +10,10 @@ seo:
 ---
 
 Notable changes to the kit, newest first.
+
+## 2026-10-14
+
+- **Dashboard: no more `403` polls for users without the permission (fix).** The topbar notification bell (`GET /notifications/unread-count`), the topbar chat unread pill (`GET /chat/channels`) and the overview usage card (`GET /billing/usage`) queried their endpoints for every user, so a role without `Permissions.Notifications.Inbox.View`, `Permissions.Chat.Channels.View` or `Permissions.Billing.View` got a `403` on each poll and the API logged an error line for each one. Each query now runs only when the user holds that permission. Without it, the bell and the chat pill are hidden, and the usage card and the Resources stat card say there is no access. The `/chat` and `/subscription` pages are unchanged, because the nav already hides them from users without the permission. See [Add a dashboard page](/docs/guides/add-a-dashboard-page/#step-5---permission-gating-nav--actions-not-routes) and [#1445](https://github.com/fullstackhero/dotnet-starter-kit/pull/1445).
 
 ## 2026-10-09
 
