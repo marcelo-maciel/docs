@@ -42,16 +42,21 @@ The supported cultures are the specific tags in `SupportedCultures.Tags` (`en-US
 services.AddLocalization(o => o.ResourcesPath = "");
 ```
 
-**Exceptions** keep an English `Message` (what logs and audit records see) and carry the resource key alongside it; `GlobalExceptionHandler` resolves the key under the request culture when it renders the response, and falls back to `Message` when the key is missing:
+**Exceptions** keep an English `Message` (what logs and audit records see) and carry the resource key alongside it; `GlobalExceptionHandler` resolves the key under the request culture when it renders the response, and falls back to `Message` when the key is missing. `.Localized(...)` attaches the key to any `CustomException` and returns the same instance, so the throw keeps its subclass and status code:
 
 ```csharp
+// module catalog: the marker type names it
 throw new NotFoundException($"Product {id} not found.")
-{
-    MessageKey = "Catalog.ProductNotFound",
-    MessageArgs = [id],
-    ResourceSource = typeof(CatalogResources), // omitted = SharedResources
-};
+    .Localized<CatalogResources>("Catalog.ProductNotFound", id);
+
+// shared catalog (SharedResources): no type argument
+throw new UnauthorizedException("Tenant context is required.")
+    .Localized("Error.TenantContextRequired");
 ```
+
+`MessageKey`, `MessageArgs` and `ResourceSource` have private setters, so `.Localized` is the only way to set them. The wrappers that localize a BCL exception (`LocalizedKeyNotFoundException`, `LocalizedUnauthorizedAccessException`) do not derive from `CustomException` and keep an object initializer.
+
+**A key the catalog lacks fails the build.** `LocalizedKeyReferenceTests` (in `src/Tests/Architecture.Tests`) scans `src/BuildingBlocks` and `src/Modules` for every string-literal key passed to `.Localized<T>(...)`, `.Localized(...)`, a wrapper's `MessageKey` and `localizer["..."]`, and fails when the key is missing from the neutral catalog it targets or when the entry's `{n}` placeholders need more arguments than the call passes. Without it, a typo or a key added to the wrong module's catalog would silently render the English fallback (or the raw key, for a validator).
 
 **Validators** inject `IStringLocalizer<SharedResources>` (shared `Validation.*` keys) or `IStringLocalizer<{Module}Resources>` and resolve lazily with `.WithMessage(_ => localizer["Key"])`, so the message is looked up at validation time, under the request culture.
 
