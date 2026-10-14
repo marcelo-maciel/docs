@@ -1,6 +1,6 @@
 ---
 title: Overview
-lastUpdated: 2026-10-09
+lastUpdated: 2026-10-14
 description: Release notes and version history for fullstackhero.
 sidebar:
   order: 1
@@ -10,6 +10,10 @@ seo:
 ---
 
 Notable changes to the kit, newest first.
+
+## 2026-10-14
+
+- **Identity: the two-factor issuer name is configurable (fix).** `EnrollTwoFactorCommandHandler` hardcoded `FullStackHero` as the issuer of the `otpauth://` URI, so every product built on the kit showed up under that name in the user's authenticator app. A new **`TwoFactorOptions:Issuer`** setting chooses it; it defaults to `FullStackHero`, so existing deployments behave exactly as before, and a blank value fails options validation at startup. The issuer is percent-encoded in both the label and the `issuer=` parameter, so names with spaces or accents produce a valid URI. Only new enrolments get the new name: existing enrolments keep working unchanged, because the shared secret does not change, and no migration is needed. See [Two-factor authentication](/docs/security/two-factor/#issuer-name), [#1440](https://github.com/fullstackhero/dotnet-starter-kit/issues/1440) and [#1443](https://github.com/fullstackhero/dotnet-starter-kit/pull/1443).
 
 ## 2026-10-09
 
